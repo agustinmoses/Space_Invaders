@@ -6,7 +6,7 @@ from obstacle import Obstacle
 from alien import Alien, Extra
 from laser import Laser
 class Game:
-    def __init__(self,game_score):
+    def __init__(self):
         ### Player Setup ###
         self.player = pygame.sprite.GroupSingle()
         self.player.add(Player((450,600)))
@@ -14,6 +14,7 @@ class Game:
         ### Health & Score
         self.lives = 3
         self.live_surf = pygame.image.load('graphics/player.png')
+        self.score = 0
         # self.live_surf.get_size[0] is the width of the life
         # *2 because we want 2 of them
         # + 20 because that will be our offset from the left of the screen 
@@ -52,6 +53,8 @@ class Game:
 
         ### Sound ***
         self.explosion_sound = pygame.mixer.Sound('audio/explosion.wav')
+        self.player_hurt_sound = pygame.mixer.Sound('audio/player_hurt_1.wav')
+        self.player_hurt_sound2 = pygame.mixer.Sound('audio/player_hurt_2.wav')
     def create_obstacle(self,x_start, y_start, offset_x):
         """
         This creates the obstacles in the game by placing a pixelated
@@ -195,6 +198,7 @@ class Game:
                     laser.kill()
                 # player collision
                 if pygame.sprite.spritecollide(laser,self.player,False):
+                    self.player_hurt_sound.play()
                     laser.kill()
                     self.lives -= 1
                     if self.lives <= 0:
@@ -288,15 +292,37 @@ class TV:
         self.create_lines()
         screen.blit(self.tv, (0,0))
 
+class GameStates():
+    def __init__(self):
+        self.state = 'main_game'
+        self.game = Game(0)
+
+
+    def main_game(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if self.game.game_condition:
+                if event.type == ALIEN_LASER:
+                    self.game.alien_shoot()
+        
+        # Drawing
+        screen.fill((30,30,30))
+        self.game.run()
+        crt.draw()
+
+
 if __name__ == '__main__':
     pygame.init()
     screen = pygame.display.set_mode((900,625))
     clock = pygame.time.Clock()
-    game = Game(0)
     crt = TV()
     music = pygame.mixer.Sound('audio/music.wav') 
+    music.set_volume(0.4)
     music.play(loops=-1)
-    
+    game_state = GameStates()
+
     ### Intro Screen ###
     game_font = pygame.font.Font('font/pixeled.ttf',20)
     message = """ The Aliens Have Taken Over!"""
@@ -310,47 +336,40 @@ if __name__ == '__main__':
     game_over_font = game_font = pygame.font.Font('font/pixeled.ttf',40)
     game_over = game_font.render("Game Over!", False, 'white')
     game_over_rect = game_over.get_rect(center = (900/2,200))
+    game_over_sound = pygame.mixer.Sound('audio/player_death.mp3')
 
     # Work in-progress #
-    score_message = game_font.render(f'Your score: {game.score}',False,'white')
-    score_message_rect = score_message.get_rect(center = (900/2,500))
+    # score_message = game_font.render(f'Your score: {game.score}',False,'white')
+    # score_message_rect = score_message.get_rect(center = (900/2,500))
 
 
-    red_alien = pygame.image.load('graphics/red.png').convert_alpha()
-    red_alien = pygame.transform.scale2x(red_alien)
-    red_alien_rect = red_alien.get_rect(center = (450,312))
+    # red_alien = pygame.image.load('graphics/red.png').convert_alpha()
+    # red_alien = pygame.transform.scale2x(red_alien)
+    # red_alien_rect = red_alien.get_rect(center = (450,312))
 
     ### Aliens setup ###
     ALIEN_LASER = pygame.USEREVENT + 1
     pygame.time.set_timer(ALIEN_LASER,800)
 
+
     while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            if game.game_condition:
-                if event.type == ALIEN_LASER:
-                    game.alien_shoot()
-            else:
-                if event.type == pygame.KEYDOWN:
-                    game.game_condition = True
-        if game.game_condition:    
-            screen.fill((30,30,30))
-            game.run()
-            crt.draw()
-        else:
-            screen.fill((30,30,30))
-            if game.score == 0:
-                crt.draw()
-                screen.blit(intr_message,intr_rect)
-                screen.blit(instruc_message, instruc_rect)
-                screen.blit(red_alien,red_alien_rect)
-            else:
-                crt.draw()
-                screen.blit(game_over, game_over_rect)
-                screen.blit(red_alien, red_alien_rect)
 
+        # else:
+        #     screen.fill((30,30,30))
+        #     if game.score == 0:
 
+        #         crt.draw()
+        #         screen.blit(intr_message,intr_rect)
+        #         screen.blit(instruc_message, instruc_rect)
+        #         screen.blit(red_alien,red_alien_rect)
+        #     else:
+        #         crt.draw()
+        #         screen.blit(game_over, game_over_rect)
+        #         screen.blit(red_alien, red_alien_rect)
+        #         music.set_volume(0)
+        #         game_over_sound.play()
+        game_state.main_game()
         pygame.display.update()
+
+
         clock.tick(60)
