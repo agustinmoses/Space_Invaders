@@ -16,9 +16,9 @@ class Game:
         self.live_surf = pygame.image.load('graphics/player.png')
         self.score = 0
         # self.live_surf.get_size[0] is the width of the life
-        # *2 because we want 2 of them
-        # + 20 because that will be our offset from the left of the screen 
-        self.live_x_start_pos = 900 - (self.live_surf.get_size()[0] * 3 + 20 )
+        # *3 because we want 3 of them
+        # + 30 because that will be our offset from the left of the screen 
+        self.live_x_start_pos = 900 - (self.live_surf.get_size()[0] * 3 + 30 )
         self.font = pygame.font.Font('font/Pixeled.ttf',20)
         
 
@@ -286,12 +286,30 @@ class TV:
         self.create_lines()
         screen.blit(self.tv, (0,0))
 
-class GameState:
-
+class GameManager:
     def __init__(self):
-        self.state = 'intro_screen'
-    
-    def main_game(self):
+        self.game_state = 'intro'
+        self.music_loop = 0
+        self.game_over_loop = 0
+        self.game_over_sound = pygame.mixer.Sound('audio/player_death.mp3') 
+        default_music = pygame.mixer.music.load('audio/music.wav')
+
+    def intro(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                self.game_state = 'main'
+
+        screen.fill((30,30,30))
+        crt.draw()
+        screen.blit(intr_message,intr_rect)
+        screen.blit(instruc_message, instruc_rect)
+        screen.blit(red_alien,red_alien_rect)
+        pygame.display.update()
+
+    def main(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -300,52 +318,57 @@ class GameState:
                 game.alien_shoot()
         
         if game.lives == 0:
-            self.state = 'game_over'
+            self.game_state = 'over'
         
         screen.fill((30,30,30))
         game.run()
         crt.draw()
         pygame.display.update()
     
-    def intro_screen(self):
+    def play_default_music(self):
+        if self.music_loop == 0:
+            pygame.mixer.music.set_volume(0.4)
+            pygame.mixer.music.play(-1)
+            self.music_loop = 1
+
+    def play_game_over(self):
+        if self.game_over_loop == 0:
+            self.game_over_sound.play()
+            self.game_over_loop = 1
+
+    def reset(self):
+        self.__init__()
+
+    def game_over(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.KEYDOWN:
-                self.state = 'main_game'
-        music.set_volume(0.4)
-        screen.fill((30,30,30))
-        crt.draw()
-        screen.blit(intr_message,intr_rect)
-        screen.blit(instruc_message, instruc_rect)
-        screen.blit(red_alien,red_alien_rect)
-        pygame.display.update()
-    
-    def game_over_screen(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == pygame.KEYDOWN:
-                self.state = 'intro_screen'
                 game.reset()
-        music.set_volume(0)
+                self.reset()
 
         screen.fill((30,30,30))
         crt.draw()
         screen.blit(game_over, game_over_rect)
         screen.blit(red_alien, red_alien_rect)
         pygame.display.update()
-    
-    def state_manager(self):
-        if self.state == 'intro_screen':
-            self.intro_screen()
-        elif self.state == 'main_game':
-            self.main_game()
-        elif self.state == 'game_over':
-            self.game_over_screen()
 
+    def state_manager(self):
+
+
+        if self.game_state == 'intro':
+            self.intro()
+        elif self.game_state == 'main':
+            self.main()
+        elif self.game_state == 'over':
+            self.game_over()    
+
+        if (self.game_state == 'intro') or (self.game_state == 'main'):
+            self.play_default_music()
+        if self.game_state == 'over':
+            pygame.mixer.music.stop()
+            self.play_game_over()
 
 if __name__ == '__main__':
     
@@ -356,11 +379,10 @@ if __name__ == '__main__':
     clock = pygame.time.Clock()
     game = Game()
     crt = TV()
-    game_state = GameState()
-    music = pygame.mixer.Sound('audio/music.wav') 
-    music.set_volume(0.4)
-    state = False
-    play_sound = True
+    game_state = GameManager()
+
+    pygame.mixer.init()
+
 
 
     ALIENLASER = pygame.USEREVENT + 1
@@ -383,20 +405,10 @@ if __name__ == '__main__':
     game_over_font = game_font = pygame.font.Font('font/pixeled.ttf',40)
     game_over = game_font.render("Game Over!", False, 'white')
     game_over_rect = game_over.get_rect(center = (900/2,200))
-    game_over_sound = pygame.mixer.Sound('audio/player_death.mp3')
-
-    ### Music States ###
-    
-    music.play(loops=-1)
     
     while True:
-        if state and play_sound:
-            game_over_sound.play()
-            state = False
-            if not state:
-                play_sound = False
+    
         game_state.state_manager()
-        if game_state.state == "game_over":
-            state = True
+        
         
         clock.tick(60)
