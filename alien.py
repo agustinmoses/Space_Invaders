@@ -29,7 +29,7 @@ class Alien(pygame.sprite.Sprite):
         Updates the alien by just shifting its x-position
         Input:
             direction[int]: By how much you want to change the alien's
-            position
+            position. The bigger the integer, the faster it moves left or right.
         """
         self.rect.x += direction
 
@@ -49,12 +49,12 @@ class Extra(pygame.sprite.Sprite):
         super().__init__()
         self.image = pygame.image.load('graphics/extra.png')
         if side == 'right':
-            x = screen_width + 50 
+            self.x = screen_width + 50 
             self.speed = -3
         elif side == 'left':
-            x = -50
+            self.x = -50
             self.speed = 3
-        self.rect = self.image.get_rect(topleft = (x,10))
+        self.rect = self.image.get_rect(topleft = (self.x,10))
 
     def update(self):
         """

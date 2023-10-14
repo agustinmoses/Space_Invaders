@@ -18,6 +18,8 @@ class Player(pygame.sprite.Sprite):
         self.laser_time = 0
         self.laser_cooldown = 600
         self.laser_sound = pygame.mixer.Sound('audio/laser.wav')
+        self.screen_width = 800
+        self.screen_height = 600
 
         self.lasers = pygame.sprite.Group()
 
@@ -27,7 +29,7 @@ class Player(pygame.sprite.Sprite):
         """
         keys = pygame.key.get_pressed()
         
-        if keys[pygame.K_RIGHT] and (self.rect.right <= 900):
+        if keys[pygame.K_RIGHT] and (self.rect.right <= self.screen_width):
             self.rect.x += self.speed 
         elif keys[pygame.K_LEFT] and (self.rect.left >= 0):
             self.rect.x -= self.speed
