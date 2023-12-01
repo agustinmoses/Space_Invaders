@@ -6,6 +6,8 @@ It is a simple yet addictive game where the player controls a spaceship and must
 
 * Classic arcade gameplay
 * Sound Effects and Background Music
+* Multiple Levels with varying difficulty
+* Powerups to assist player through levels
 
 # Controls
 * Use the Left and Right arrow keys to move the player's ship.
