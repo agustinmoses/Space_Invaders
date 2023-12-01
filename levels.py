@@ -62,7 +62,7 @@ class Level:
 
         ### Health setup ###
         self.health = pygame.sprite.GroupSingle()
-        self.health_spawn_time = randint(100,200)
+        self.health_spawn_time = randint(800,1000)
 
         ### Sound ###
         self.explosion_sound = pygame.mixer.Sound('audio/explosion.wav')
@@ -186,7 +186,7 @@ class Level:
         self.health_spawn_time -= 1
         if self.health_spawn_time <= 0:
             self.health.add(HealthPower(self.screen_width))
-            self.health_spawn_time = randint(100,200)
+            self.health_spawn_time = randint(800,1000)
 
     def collision_check(self):
 
@@ -235,9 +235,12 @@ class Level:
         if self.aliens:
             for alien in self.aliens:
                 pygame.sprite.spritecollide(alien,self.blocks,True)
-
                 if pygame.sprite.spritecollide(alien,self.player,False):
                     LIVES = 0
+
+        # Health
+        if pygame.sprite.spritecollide(self.player.sprite,self.health,True):
+            LIVES += 1
 
     def display_lives(self):
         """

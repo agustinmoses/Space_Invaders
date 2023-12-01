@@ -105,12 +105,31 @@ class GameManager:
             print(levels.LIVES)
             self.game_state = 'over'
         if not level2.aliens.sprites():
-            self.game_state = 'victory'
+            self.game_state = 'level3'
         screen.fill((30,30,30))
         level2.run()  
         crt.draw()
         pygame.display.update()
 
+    def level3(self):
+        """
+        Runs and controls the events that happen in level 3
+        """
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == LEVEL3_ALIENLASER:
+                level3.alien_shoot()
+        
+        if levels.LIVES == 0:
+            self.game_state = 'over'
+        if not level3.aliens.sprites():
+            self.game_state = 'victory'
+        screen.fill((30,30,30))
+        level3.run()  
+        crt.draw()
+        pygame.display.update()
     
     def play_default_music(self):
         """
@@ -164,7 +183,7 @@ class GameManager:
         screen.blit(game_over_instruc, game_over_instruc_rect)
 
         score_message = score_font.render(f"Your Score: {levels.SCORE}", False, 'white')
-        score_message_rect = score_message.get_rect(center = (screen_width/2,300))
+        score_message_rect = score_message.get_rect(center = (screen_width/2,450))
         screen.blit(score_message, score_message_rect)
         pygame.display.update()
    
@@ -175,6 +194,8 @@ class GameManager:
                 sys.exit()
             if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_r:
+                        levels.LIVES = 3
+                        levels.SCORE = 0
                         reset_levels()
                         self.reset()
 
@@ -194,6 +215,8 @@ class GameManager:
             self.level1()
         elif self.game_state == 'level2':
             self.level2()
+        elif self.game_state == 'level3':
+            self.level3()
         elif self.game_state == 'over':
             self.game_over()    
         elif self.game_state == 'victory':
@@ -215,8 +238,7 @@ def reset_levels():
     """
     level1.reset()
     level2.reset()
-
-
+    level3.reset()
 
 if __name__ == '__main__':
     ### General Setup ###
@@ -225,12 +247,15 @@ if __name__ == '__main__':
     screen_height = 600
     screen = pygame.display.set_mode((screen_width,screen_height))
     clock = pygame.time.Clock()
-    level1 = levels.Level(screen, screen_width, screen_height,1,1,1,2)
-    level2 = levels.Level(screen, screen_width, screen_height,6,12,2,2)  
+ 
     crt = TV()
     game_state = GameManager()
     pygame.mixer.init()
 
+    ### Level Setup ###
+    level1 = levels.Level(screen, screen_width, screen_height,1,1,1,2)
+    level2 = levels.Level(screen, screen_width, screen_height,1,1,2,2) 
+    level3 = levels.Level(screen, screen_width, screen_height,6,12,2,2)
 
     ### Blinking Text Setup ###
 
