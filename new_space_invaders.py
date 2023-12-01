@@ -40,8 +40,7 @@ class GameManager:
         self.blink_interval = 300  # Blink every 300 milliseconds
         self.last_blink_time = pygame.time.get_ticks()
         self.show_message = True
-
-                
+       
     def intro(self):
         """
         Controls the intro screen
@@ -53,7 +52,6 @@ class GameManager:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_p:
                     self.game_state = 'level1'
-
 
         screen.fill((30,30,30))
         crt.draw()
@@ -223,8 +221,7 @@ class GameManager:
             self.victory()
 
         if (self.game_state == 'intro') or (self.game_state == 'level1') or (self.game_state == 'level2'):
-            pass
-            # self.play_default_music()
+            self.play_default_music()
         if (self.game_state == 'over'):
             pygame.mixer.music.stop()
             self.play_game_over()
@@ -247,7 +244,6 @@ if __name__ == '__main__':
     screen_height = 600
     screen = pygame.display.set_mode((screen_width,screen_height))
     clock = pygame.time.Clock()
- 
     crt = TV()
     game_state = GameManager()
     pygame.mixer.init()
@@ -273,8 +269,6 @@ if __name__ == '__main__':
     LEVEL3_ALIENLASER = pygame.USEREVENT + 3
     pygame.time.set_timer(LEVEL3_ALIENLASER,300)
     
-
-
     ### Intro Screen Setup ###
     game_font = pygame.font.Font('font/pixeled.ttf',20)
     message = """ The Aliens Have Taken Over!"""
@@ -292,14 +286,11 @@ if __name__ == '__main__':
     game_over_font = pygame.font.Font('font/pixeled.ttf', 40)
     score_font = pygame.font.Font('font/pixeled.ttf', 20)
 
-
-
     game_over = game_over_font.render("Game Over!", False, 'white')
     game_over_rect = game_over.get_rect(center = (screen_width/2,200))
 
     game_over_instruc = game_font.render("Press the 'R' Key to Try Again!", False, 'white')
     game_over_instruc_rect = game_over_instruc.get_rect(center = (screen_width/2,500))
-
 
     ### Victory Screen Setup ###
     victory_font = pygame.font.Font('font/pixeled.ttf', 20)
@@ -310,7 +301,6 @@ if __name__ == '__main__':
     victory_message = game_font.render("Press the 'R' Key to Play Again!", False, 'white')
     victory_message_rect = victory_message.get_rect(center = (screen_width/2,500))
 
-    
     while True:
     
         game_state.state_manager()

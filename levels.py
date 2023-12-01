@@ -299,11 +299,7 @@ class Level:
         """
         for live in range(LIVES):
             # The second part is just the offset between lives
-            # print(self.live_x_start_pos)
-            # print(live *(self.live_surf.get_size()[0] + 10))
-            # print(self.live_surf.get_size()[0])
             x = self.live_x_start_pos - (live * 70 )
-            print(x)
             self.screen.blit(self.live_surf,(x,8))
             
     def display_score(self):
@@ -315,7 +311,6 @@ class Level:
         score_rect = score.get_rect(topleft = (10,-15))
         self.screen.blit(score,score_rect)
 
-    
     def reset(self):
         self.__init__(self.screen, self.screen_width, self.screen_height, self.rows, self.col, self.alien_x_speed, self.alien_y_speed)
 
@@ -326,8 +321,6 @@ class Level:
         self.player.update()
         self.alien_lasers.update()
         self.extra.update()
-
-
 
         self.aliens.update(self.alien_x_speed)
         self.alien_pos_checker(self.alien_x_speed)
@@ -353,4 +346,3 @@ class Level:
             self.drill.draw(self.screen)
         self.drill_active_coundown()
         
-
