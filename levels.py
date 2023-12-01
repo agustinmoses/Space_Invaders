@@ -5,9 +5,11 @@ from obstacle import Obstacle
 from alien import Alien, Extra
 from laser import Laser
 from health_powerup import HealthPower
+from drill_powerup import Drill
 
 LIVES = 3
 SCORE = 0
+DRILL_ACTIVE = False
 
 class Level:
     def __init__(self,screen, screen_width, screen_height,alien_rows, alien_cols, alien_speed_x, alien_speed_y):
@@ -62,7 +64,13 @@ class Level:
 
         ### Health setup ###
         self.health = pygame.sprite.GroupSingle()
-        self.health_spawn_time = randint(800,1000)
+        self.health_spawn_frequency = randint(800,1000)
+
+        ### Drill setup ###
+        self.drill = pygame.sprite.GroupSingle()
+        self.drill_spawn_frequency = randint(400,800)
+        self.drill_time = 0
+        self.drill_active_timer = 10000
 
         ### Sound ###
         self.explosion_sound = pygame.mixer.Sound('audio/explosion.wav')
@@ -183,10 +191,31 @@ class Level:
         """
         This controls how often the health powerup spawns in
         """
-        self.health_spawn_time -= 1
-        if self.health_spawn_time <= 0:
+        self.health_spawn_frequency -= 1
+        if self.health_spawn_frequency <= 0:
             self.health.add(HealthPower(self.screen_width))
-            self.health_spawn_time = randint(800,1000)
+            self.health_spawn_frequency = randint(800,1000)
+    
+    def drill_frequency(self):
+        """
+        This controls how often the drill powerup spawns in when it 
+        is not active.
+        """
+        self.drill_spawn_frequency -= 1
+        if self.drill_spawn_frequency <= 0:
+            self.drill.add(Drill(self.screen_width,self.screen_height))
+            self.drill_spawn_frequency = randint(400,800)
+    def drill_active_coundown(self):
+        """
+        This controls how long the drill powerup is active for
+        """
+        global DRILL_ACTIVE
+        if DRILL_ACTIVE:
+            current_time = pygame.time.get_ticks()
+            if current_time - self.drill_time >= self.drill_active_timer:
+                DRILL_ACTIVE = False
+                self.drill_time = 0
+        
 
     def collision_check(self):
 
@@ -196,17 +225,27 @@ class Level:
         """
         global LIVES
         global SCORE
+        global DRILL_ACTIVE
         # Player Laser
         if self.player.sprite.lasers:
             for laser in self.player.sprite.lasers:
                 # obstacle collision
                 if pygame.sprite.spritecollide(laser,self.blocks,True):
-                    laser.kill()
+                    if DRILL_ACTIVE:
+                        if laser.rect.y <=0: 
+                            laser.kill()
+                    else:
+                        laser.kill()
                 # alien collision
                 aliens_hit = pygame.sprite.spritecollide(laser,self.aliens,True)
                 if aliens_hit:
                     self.explosion_sound.play()
-                    laser.kill()
+                    if DRILL_ACTIVE:
+                        if laser.rect.y <=0:
+                            laser.kill()
+                    else:
+                        laser.kill()
+
                     for alien in aliens_hit:
                         SCORE += alien.value
                 # extra collsion
@@ -219,6 +258,13 @@ class Level:
                     laser.kill()
                     self.explosion_sound.play()
                     LIVES += 1
+                # drill collision
+                if pygame.sprite.spritecollide(laser,self.drill,True):
+                    laser.kill()
+                    self.explosion_sound.play()
+                    DRILL_ACTIVE = True
+                    self.drill_time = pygame.time.get_ticks()
+
         # Alien Laser
         if self.alien_lasers:
             for laser in self.alien_lasers:
@@ -230,17 +276,22 @@ class Level:
                     self.player_hurt_sound.play()
                     laser.kill()
                     LIVES -= 1
- 
+                
         # aliens
         if self.aliens:
             for alien in self.aliens:
                 pygame.sprite.spritecollide(alien,self.blocks,True)
                 if pygame.sprite.spritecollide(alien,self.player,False):
-                    LIVES = 0
+                    LIVES = 0 #Kill player if alien touches them
 
         # Health
         if pygame.sprite.spritecollide(self.player.sprite,self.health,True):
             LIVES += 1
+        
+        # Drill
+        if pygame.sprite.spritecollide(self.player.sprite,self.drill,True):
+            DRILL_ACTIVE = True
+            self.drill_time = pygame.time.get_ticks()
 
     def display_lives(self):
         """
@@ -295,3 +346,11 @@ class Level:
             self.health.update()
             self.health_timer()
             self.health.draw(self.screen)
+        
+        if not DRILL_ACTIVE:
+            self.drill.update()
+            self.drill_frequency()
+            self.drill.draw(self.screen)
+        self.drill_active_coundown()
+        
+
