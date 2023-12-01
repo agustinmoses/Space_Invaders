@@ -225,8 +225,8 @@ if __name__ == '__main__':
     screen_height = 600
     screen = pygame.display.set_mode((screen_width,screen_height))
     clock = pygame.time.Clock()
-    level1 = levels.Level1(screen, screen_width, screen_height)
-    level2 = levels.Level2(screen, screen_width, screen_height)  
+    level1 = levels.Level(screen, screen_width, screen_height,1,1,1,2)
+    level2 = levels.Level(screen, screen_width, screen_height,6,12,2,2)  
     crt = TV()
     game_state = GameManager()
     pygame.mixer.init()
@@ -243,8 +243,12 @@ if __name__ == '__main__':
     pygame.time.set_timer(LEVEL1_ALIENLASER,800)
 
     LEVEL2_ALIENLASER = pygame.USEREVENT + 2
-    pygame.time.set_timer(LEVEL2_ALIENLASER,600)
+    pygame.time.set_timer(LEVEL2_ALIENLASER,500)
+
+    LEVEL3_ALIENLASER = pygame.USEREVENT + 3
+    pygame.time.set_timer(LEVEL3_ALIENLASER,300)
     
+
 
     ### Intro Screen Setup ###
     game_font = pygame.font.Font('font/pixeled.ttf',20)
