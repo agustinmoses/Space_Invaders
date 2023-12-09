@@ -123,12 +123,79 @@ class GameManager:
         if levels.LIVES == 0:
             self.game_state = 'over'
         if not level3.aliens.sprites():
-            self.game_state = 'victory'
+            self.game_state = 'level4'
         screen.fill((30,30,30))
         level3.run()  
         crt.draw()
         pygame.display.update()
+
+    def level4(self):
+        """
+        Runs and controls the events that happen in level 4
+        """
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == LEVEL4_ALIENLASER:
+                level4.alien_shoot()
+        
+        if levels.LIVES == 0:
+            self.game_state = 'over'
+        if not level4.aliens.sprites():
+            self.game_state = 'victory'
+        screen.fill((30,30,30))
+        level4.run()  
+        crt.draw()
+        pygame.display.update()
+
+    def game_over(self):
+        """
+        Controls the game over screen
+        """
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if (event.key == pygame.K_r):
+                    levels.LIVES = 3
+                    levels.SCORE = 0
+                    reset_levels()
+                    self.reset()
+
+        screen.fill((30,30,30))
+        crt.draw()
+        screen.blit(game_over, game_over_rect)
+        screen.blit(red_alien, red_alien_rect)
+        screen.blit(game_over_instruc, game_over_instruc_rect)
+
+        score_message = score_font.render(f"Your Score: {levels.SCORE}", False, 'white')
+        score_message_rect = score_message.get_rect(center = (screen_width/2,450))
+        screen.blit(score_message, score_message_rect)
+        pygame.display.update()    
     
+    def victory(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_r:
+                        levels.LIVES = 3
+                        levels.SCORE = 0
+                        reset_levels()
+                        self.reset()
+
+        score_message = score_font.render(f"Your Score: {levels.SCORE}", False, 'white')
+        score_message_rect = score_message.get_rect(center = (screen_width/2,300))
+        screen.fill((30,30,30))
+        crt.draw()
+        screen.blit(victory,victory_rect)
+        screen.blit(victory_message, victory_message_rect)
+        pygame.display.update()
+        
     def play_default_music(self):
         """
         Controls the default music, specifically the amount of times it plays
@@ -158,52 +225,6 @@ class GameManager:
     def reset(self):
         self.__init__()
 
-    def game_over(self):
-        """
-        Controls the game over screen
-        """
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == pygame.KEYDOWN:
-                if (event.key == pygame.K_r):
-                    levels.LIVES = 3
-                    levels.SCORE = 0
-                    reset_levels()
-                    self.reset()
-
-        screen.fill((30,30,30))
-        crt.draw()
-        screen.blit(game_over, game_over_rect)
-        screen.blit(red_alien, red_alien_rect)
-        screen.blit(game_over_instruc, game_over_instruc_rect)
-
-        score_message = score_font.render(f"Your Score: {levels.SCORE}", False, 'white')
-        score_message_rect = score_message.get_rect(center = (screen_width/2,450))
-        screen.blit(score_message, score_message_rect)
-        pygame.display.update()
-   
-    def victory(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_r:
-                        levels.LIVES = 3
-                        levels.SCORE = 0
-                        reset_levels()
-                        self.reset()
-
-        score_message = score_font.render(f"Your Score: {levels.SCORE}", False, 'white')
-        score_message_rect = score_message.get_rect(center = (screen_width/2,300))
-        screen.fill((30,30,30))
-        crt.draw()
-        screen.blit(victory,victory_rect)
-        screen.blit(victory_message, victory_message_rect)
-        pygame.display.update()
     def state_manager(self):
 
 
@@ -215,12 +236,14 @@ class GameManager:
             self.level2()
         elif self.game_state == 'level3':
             self.level3()
+        elif self.game_state == 'level4':
+            self.level4()
         elif self.game_state == 'over':
             self.game_over()    
         elif self.game_state == 'victory':
             self.victory()
 
-        if (self.game_state == 'intro') or (self.game_state == 'level1') or (self.game_state == 'level2'):
+        if (self.game_state == 'intro') or (self.game_state == 'level1') or (self.game_state == 'level2') or (self.game_state == 'level3') or (self.game_state == 'level4'):
             self.play_default_music()
         if (self.game_state == 'over'):
             pygame.mixer.music.stop()
@@ -236,6 +259,7 @@ def reset_levels():
     level1.reset()
     level2.reset()
     level3.reset()
+    level4.reset()
 
 if __name__ == '__main__':
     ### General Setup ###
@@ -250,8 +274,9 @@ if __name__ == '__main__':
 
     ### Level Setup ###
     level1 = levels.Level(screen, screen_width, screen_height,1,1,1,2)
-    level2 = levels.Level(screen, screen_width, screen_height,1,1,2,2) 
-    level3 = levels.Level(screen, screen_width, screen_height,6,12,2,2)
+    level2 = levels.Level(screen, screen_width, screen_height,1,1,1,2) 
+    level3 = levels.Level(screen, screen_width, screen_height,1,1,2,2)
+    level4 = levels.Level(screen, screen_width, screen_height,6,12,2,2)
 
     ### Blinking Text Setup ###
 
@@ -264,10 +289,13 @@ if __name__ == '__main__':
     pygame.time.set_timer(LEVEL1_ALIENLASER,800)
 
     LEVEL2_ALIENLASER = pygame.USEREVENT + 2
-    pygame.time.set_timer(LEVEL2_ALIENLASER,500)
+    pygame.time.set_timer(LEVEL2_ALIENLASER,300)
 
     LEVEL3_ALIENLASER = pygame.USEREVENT + 3
-    pygame.time.set_timer(LEVEL3_ALIENLASER,300)
+    pygame.time.set_timer(LEVEL3_ALIENLASER,600)
+
+    LEVEL4_ALIENLASER  = pygame.USEREVENT + 4
+    pygame.time.set_timer(LEVEL4_ALIENLASER,400)
     
     ### Intro Screen Setup ###
     game_font = pygame.font.Font('font/pixeled.ttf',20)
