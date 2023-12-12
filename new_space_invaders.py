@@ -286,7 +286,7 @@ if __name__ == '__main__':
     ### Alien Laser Setup ###
 
     LEVEL1_ALIENLASER = pygame.USEREVENT + 1
-    pygame.time.set_timer(LEVEL1_ALIENLASER,800)
+    pygame.time.set_timer(LEVEL1_ALIENLASER,500)
 
     LEVEL2_ALIENLASER = pygame.USEREVENT + 2
     pygame.time.set_timer(LEVEL2_ALIENLASER,300)

@@ -6,10 +6,12 @@ from alien import Alien, Extra
 from laser import Laser
 from health_powerup import HealthPower
 from drill_powerup import Drill
+from split_powerup import Split
 
 LIVES = 3
 SCORE = 0
 DRILL_ACTIVE = False
+SPLIT_ACTIVE = False
 
 class Level:
     def __init__(self,screen, screen_width, screen_height,alien_rows, alien_cols, alien_speed_x, alien_speed_y):
@@ -70,7 +72,13 @@ class Level:
         self.drill = pygame.sprite.GroupSingle()
         self.drill_spawn_frequency = randint(400,800)
         self.drill_time = 0
-        self.drill_active_timer = 10000
+        self.drill_active_timer = 5000
+
+        ### Split setup ###
+        self.split = pygame.sprite.GroupSingle()
+        self.split_spawn_frequency = randint(400,800)
+        self.split_time = 0
+        self.split_active_timer = 5000
 
         ### Sound ###
         self.explosion_sound = pygame.mixer.Sound('audio/explosion.wav')
@@ -215,7 +223,27 @@ class Level:
             if current_time - self.drill_time >= self.drill_active_timer:
                 DRILL_ACTIVE = False
                 self.drill_time = 0
-        
+    
+    def split_frequency(self):
+        """
+        This controls how often the split powerup spawns in
+        """
+        self.split_spawn_frequency -= 1
+        if self.split_spawn_frequency <= 0:
+            self.split.add(Split(self.screen_width,self.screen_height))
+            self.split_spawn_frequency = randint(400,800)
+    
+    def split_active_coundown(self):
+        """
+        This controls how long the split powerup is active for
+        """
+        global SPLIT_ACTIVE
+        if SPLIT_ACTIVE:
+            current_time = pygame.time.get_ticks()
+            if current_time - self.split_time >= self.split_active_timer:
+                SPLIT_ACTIVE = False
+                self.player.sprite.powerup = False
+                self.split_time = 0
 
     def collision_check(self):
 
@@ -226,6 +254,7 @@ class Level:
         global LIVES
         global SCORE
         global DRILL_ACTIVE
+        global SPLIT_ACTIVE
         # Player Laser
         if self.player.sprite.lasers:
             for laser in self.player.sprite.lasers:
@@ -264,6 +293,12 @@ class Level:
                     self.explosion_sound.play()
                     DRILL_ACTIVE = True
                     self.drill_time = pygame.time.get_ticks()
+                if pygame.sprite.spritecollide(laser,self.split,True):
+                    laser.kill()
+                    self.explosion_sound.play()
+                    SPLIT_ACTIVE = True
+                    self.player.sprite.powerup = True
+                    self.split_time = pygame.time.get_ticks()
 
         # Alien Laser
         if self.alien_lasers:
@@ -276,7 +311,8 @@ class Level:
                     self.player_hurt_sound.play()
                     laser.kill()
                     LIVES -= 1
-                
+        # Player Body
+               
         # aliens
         if self.aliens:
             for alien in self.aliens:
@@ -292,6 +328,13 @@ class Level:
         if pygame.sprite.spritecollide(self.player.sprite,self.drill,True):
             DRILL_ACTIVE = True
             self.drill_time = pygame.time.get_ticks()
+        
+        # Split
+        if pygame.sprite.spritecollide(self.player.sprite,self.split,True):
+            SPLIT_ACTIVE = True
+            self.player.sprite.powerup = True
+            self.split_time = pygame.time.get_ticks()
+        
 
     def display_lives(self):
         """
@@ -345,4 +388,10 @@ class Level:
             self.drill_frequency()
             self.drill.draw(self.screen)
         self.drill_active_coundown()
+
+        if not SPLIT_ACTIVE:
+            self.split.update()
+            self.split_frequency()
+            self.split.draw(self.screen)
+        self.split_active_coundown()
         
