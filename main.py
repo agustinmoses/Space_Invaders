@@ -75,12 +75,12 @@ class GameManager:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            if event.type == LEVEL1_ALIENLASER:
-                level1.alien_shoot()
+            # if event.type == LEVEL1_ALIENLASER:
+            #     level1.alien_shoot()
         if levels.LIVES == 0:
             self.game_state = 'over'
 
-        if not level1.aliens.sprites():
+        if not level1.boss.sprites():
             self.game_state = 'level2'
         
         screen.fill((30,30,30))
@@ -272,7 +272,9 @@ if __name__ == '__main__':
     pygame.mixer.init()
 
     ### Level Setup ###
-    level1 = levels.Level(screen, screen_width, screen_height,1,1,1,2)
+
+    level1 = levels.BossLevel(screen, screen_width, screen_height)
+    # level1 = levels.Level(screen, screen_width, screen_height,1,1,1,2)
     level2 = levels.Level(screen, screen_width, screen_height,1,1,1,2) 
     level3 = levels.Level(screen, screen_width, screen_height,1,1,2,2)
     level4 = levels.Level(screen, screen_width, screen_height,6,12,2,2)

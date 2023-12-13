@@ -1,4 +1,5 @@
 import pygame
+from laser import Laser
 
 class Alien(pygame.sprite.Sprite):
     def __init__(self,color,x,y):
@@ -61,3 +62,22 @@ class Extra(pygame.sprite.Sprite):
         Updates the extra alien x-postion
         """
         self.rect.x += self.speed
+
+class Boss(pygame.sprite.Sprite):
+
+    def __init__(self):
+        """
+        Initializes the Boss class
+        """
+        super().__init__()
+        image = pygame.image.load('graphics/yellow.png')
+        self.image = pygame.transform.scale2x(image)
+        self.rect = self.image.get_rect(topleft = (0,0))
+        self.health = 100    
+    
+    def update(self,player_x):
+        """
+        Updates the boss's position
+        """
+        self.rect.x = player_x
+        
