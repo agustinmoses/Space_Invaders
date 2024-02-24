@@ -54,8 +54,7 @@ class Player(pygame.sprite.Sprite):
         """
         Simply adds a Laser sprite to the group.
         """
-        ### Potential Powerup ???? ###
-        print(self.powerup)
+
         if self.powerup:
             self.lasers.add(Laser((self.rect.center[0] + 20 ,self.rect.center[1]),8,self.rect.bottom))
             self.lasers.add(Laser((self.rect.center[0] - 20,self.rect.center[1]) ,8,self.rect.bottom))

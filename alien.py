@@ -73,7 +73,7 @@ class Boss(pygame.sprite.Sprite):
         image = pygame.image.load('graphics/yellow.png')
         self.image = pygame.transform.scale2x(image)
         self.rect = self.image.get_rect(topleft = (0,0))
-        self.health = 100    
+        self.health = 500    
     
     def update(self,player_x):
         """

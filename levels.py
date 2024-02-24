@@ -7,7 +7,6 @@ from laser import Laser
 from health_powerup import HealthPower
 from drill_powerup import Drill
 from split_powerup import Split
-import time
 
 LIVES = 3
 SCORE = 0
@@ -336,7 +335,6 @@ class Level:
             self.player.sprite.powerup = True
             self.split_time = pygame.time.get_ticks()
         
-
     def display_lives(self):
         """
         Displays the lives on the screen
@@ -575,7 +573,7 @@ class BossLevel:
     def collision_check(self):
 
         """
-        Handles the collisions between the player, aliens,
+        Handles the collisions between the player, aliens, powerups,
         and the obstacles
         """
         global LIVES
@@ -628,8 +626,7 @@ class BossLevel:
             for laser in self.boss_lasers:
                 # obstacle collision
                 if pygame.sprite.spritecollide(laser,self.blocks,True):
-                    if laser.rect.y <=0:
-                        laser.kill()
+                    laser.kill()
                 # player collision
                 if pygame.sprite.spritecollide(laser,self.player,False):
                     self.player_hurt_sound.play()
