@@ -32,9 +32,10 @@ class GameManager:
         self.game_over_loop = 0
         self.victory_loop = 0
         self.game_score_copy = 0
+        pygame.mixer.init()
         self.game_over_sound = pygame.mixer.Sound('audio/game_over.mp3') 
         self.victory_sound = pygame.mixer.Sound('audio/victory_sound.mp3')
-        default_music = pygame.mixer.music.load('audio/music.wav')
+        pygame.mixer.music.load('audio/music.wav')
         
         ### Setup for blinking text in Intro Screen###
         self.blink_interval = 300  # Blink every 300 milliseconds
@@ -296,7 +297,6 @@ if __name__ == '__main__':
     clock = pygame.time.Clock()
     crt = TV()
     game_state = GameManager()
-    pygame.mixer.init()
 
     ### Level Setup ###
 
